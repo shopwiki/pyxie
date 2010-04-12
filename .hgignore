@@ -1,0 +1,10 @@
+syntax: glob
+
+*.swp
+tags
+*.pyc
+docs/_build*
+*egg-info*
+build
+dist
+
