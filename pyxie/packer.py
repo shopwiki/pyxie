@@ -59,9 +59,29 @@ class Field(object):
         """Attempt to place a new rectangle on the bottom left corner of a
         previously placed rectangle.  Return the amt that the overall area of
         the field would increase, or None if a collision is detected."""
+        if placed.bl:
+            return None
+        # the corner we're adding it to is here:
+        corner = (placed.x, placed.y + placed.rect.y)
+        if not self.collision(corner, new):
+            return self.new_area(corner, new)
 
-    def bottom_left(self, placed, new, place=False):
+
+    def top_right(self, placed, new, place=False):
+        if placed.tr:
+            return None
+        corner = (placed.x + placed.rect.x, placed,y)
+        if not self.collision(corner, new):
+            return self.new_area(corner, new)
+
+    def new_area(self, corner, new):
+        """Return the new area of the field given a rectangle is positioned
+        with its top left corner at `corner`."""
         pass
+
+    def collision(self, corner, new):
+        return True
+
 
 def autopack(*files):
     """Autopack a bunch of image files into a reasonably optimized Field."""
