@@ -17,11 +17,24 @@ class Rectangle(object):
         self.x, self.y = x, y
         self.data = data
 
+class Point(object):
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+
 class Field(object):
     class PositionedRectangle(object):
         def __init__(self, x, y, rect):
             self.x, self.y, self.rect = x, y, rect
             self.bl, self.tr = None, None
+
+        def contains_point(self, point):
+            """This positioned rectangle contains point (x,y) if x is between
+            the left-most x and the right-most x, and y is between the top-most
+            y and bottoom-most y."""
+            if (point.x > self.x) and (point.x < (self.x + self.rect.x)) and\
+               (point.y > self.y) and (point.y < (self.y + self.rect.y)):
+               return True
+            return False
 
     def __init__(self, x=0, y=0):
         self.x, self.y = x, y
@@ -79,8 +92,27 @@ class Field(object):
         with its top left corner at `corner`."""
         pass
 
+    def calculate_area(self, rectangles=None):
+        if rectangles is None:
+            rectangles = self.rectangles
+        return None
+
     def collision(self, corner, new):
-        return True
+        def collide(rect, corner, new):
+            points = [
+                Point(*corner),
+                Point(tl.x + new.x, tl.y),
+                Point(tl.x, new.y + tl.y),
+                Point(tl.x + new.x, tl.y + new.y),
+            ]
+            for point in points:
+                if rect.contains_point(point):
+                    return True
+            return False
+        for rect in self.rectangles:
+            if collide(rect, corner, new):
+                return True
+        return False
 
 
 def autopack(*files):
