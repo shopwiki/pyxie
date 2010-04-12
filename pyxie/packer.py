@@ -72,6 +72,10 @@ class Field(object):
         """Attempt to place a new rectangle on the bottom left corner of a
         previously placed rectangle.  Return the amt that the overall area of
         the field would increase, or None if a collision is detected."""
+        if place:
+            self.rectangles.append(PositionedRectangle(placed.x, placed.y + placed.rect.y, new))
+            self.x, self.y = self.calculate_area()
+            return
         if placed.bl:
             return None
         # the corner we're adding it to is here:
@@ -81,9 +85,13 @@ class Field(object):
 
 
     def top_right(self, placed, new, place=False):
+        if place:
+            self.rectangles.append(PositionedRectangle(placed.x + placed.rect.x, placed.y, new))
+            self.x, self.y = self.calculate_area()
+            return
         if placed.tr:
             return None
-        corner = (placed.x + placed.rect.x, placed,y)
+        corner = (placed.x + placed.rect.x, placed.y)
         if not self.collision(corner, new):
             return self.new_area(corner, new)
 
@@ -92,7 +100,9 @@ class Field(object):
         with its top left corner at `corner`."""
         pass
 
-    def calculate_area(self, rectangles=None):
+    def calculate_bounds(self, rectangles=None):
+        """Calculate x/y bounds for a field with the given rectangles.  If
+        rectangles is None, calculate it for self's rectangles."""
         if rectangles is None:
             rectangles = self.rectangles
         return None
