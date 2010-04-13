@@ -55,6 +55,7 @@ class Sprite(object):
     div { border: 1px solid red; }
     </style></head>
     <body>
+        <h2>old: %(count)d reqs @ %(old)s, new: %(new)s</h2>
         %(body)s
     </body>\n</html>"""
 
@@ -107,13 +108,23 @@ class Sprite(object):
             return
         css = self.css()
         imgs = []
+        paths = []
         for pos in self.field.rectangles:
             rect = pos.rect
             imgs.append(self.html_img_template % dict(
                 filename=rect.data.filename,
                 cls=slugify(rect.data.filename)
             ))
-        return self.html_body_template % dict(css=css, body='\n'.join(imgs))
+            paths.append(rect.data.filename)
+        oldsize = human_size(filesize(*paths))
+        newsize = human_size(filesize(self.filename))
+        return self.html_body_template % dict(
+            css=css,
+            body='\n'.join(imgs),
+            count=len(paths),
+            old=oldsize,
+            new=newsize
+        )
 
 def sprite_from_glob(*glob_exprs):
     filenames = []
@@ -125,4 +136,21 @@ def sprite_from_paths(*paths):
     images = [Image.open(f) for f in paths]
     field = autopack(*images)
     return Sprite(field)
+
+# utils
+def filesize(*paths):
+    total = 0
+    for f in paths:
+        total += os.path.getsize(f)
+    return total
+
+def human_size(bytes):
+    """Takes bits per second and returns a string w/ appropriate units."""
+    units = ['b', 'Kb', 'Mb']
+    # order of magnitude
+    reduce_factor = 1024.0
+    oom = 0
+    while bytes /(reduce_factor**(oom+1)) >= 1:
+        oom += 1
+    return '%0.1f %s' % (bytes/reduce_factor**oom, units[oom])
 

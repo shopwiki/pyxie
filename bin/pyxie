@@ -14,7 +14,9 @@ def color(string, color=green, bold=True):
     return '\033[%s%sm' % ('01;' if bold else '', color) + str(string) + '\033[0m'
 
 def err(string):
-    sys.stderr.write(color("Error:", red) + str(string))
+    if not string.endswith('\n'):
+        string = string + '\n'
+    sys.stderr.write(color("Error: ", red) + str(string))
     sys.exit(-1)
 
 def main():
