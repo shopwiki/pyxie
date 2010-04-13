@@ -42,6 +42,19 @@ class Line(object):
         else:
             raise Exception("Line objects can only have horizontal or vertical lines.")
 
+    def overlap(self, p1, p2):
+        """Return True if there's any overlap between this line and _region_,
+        which is assumed to be a span if we are horizontal and a range if are
+        vertical.  There is overlap if any of the points of either line exists
+        within the other line."""
+        if self.vertical:
+            y1, y2 = self.p1.y, self.p2.y
+            return (p1 >= y1 and p1 <= y2) or (p2 >= y1 and p2 <= y2) or\
+                    (y1 >= p1 and y1 <= p2) or (y2 >= p1 and y2 <= p2)
+        x1, x2 = self.p1.x, self.p2.x
+        return (p1 >= x1 and p1 <= x2) or (p2 >= x1 and p2 <= x2) or\
+                (x1 >= p1 and x1 <= p2) or (x2 >= p1 and x2 <= p2)
+
     def __contains__(self, p):
         """Return whether or not this line contains a point p."""
         if self.vertical: # vertical line
@@ -110,6 +123,8 @@ class Field(object):
                 if result is not None:
                     attempts.append((result, placement, rect))
         attempts.sort()
+        if not attempts:
+            import ipdb; ipdb.set_trace();
         result, placement, rect = attempts[0]
         #print "Area increasing from %d to %d" % (self.area(), result)
         placement(rect, rectangle, place=True)
@@ -188,20 +203,24 @@ class Field(object):
         return span(rectangles), range(rectangles)
 
     def collision(self, corner, new):
-        def collide(rect, corner, new):
-            tl = Point(*corner)
-            points = [
-                tl, # top left
-                Point(tl.x + new.x, tl.y), # top right
-                Point(tl.x, new.y + tl.y), # bottom left
-                Point(tl.x + new.x, tl.y + new.y), # bottom right
-            ]
-            for point in points:
-                if point in rect:
-                    return True
-            return False
+        def collide(rect, top, left):
+            """If any of these lines intersect with any other rectangles, it's
+            a collision."""
+            # if the x components and y components of the rectangle overlap, then
+            # the rectangles overlap;  if they don't, then they don't.
+            if top.overlap(rect.x, rect.x + rect.rect.x):
+                return False
+            if left.overlap(rect.y, rect.y + rect.rect.y):
+                return False
+            return True
+
+        p = Point(*corner)
+        # lines representing the top, bottom, and left line of where this rectangle would be
+        left = Line(Point(p.x, p.y), Point(p.x, p.y + new.y))
+        # bottom = Line(Point(p.x, p.y + new.y), Point(p.x + new.x, p.y + new.y))
+        top = Line(Point(p.x, p.y), Point(p.x + new.x, p.y))
         for rect in self.rectangles:
-            if collide(rect, corner, new):
+            if collide(rect, top, left):
                 return True
         return False
 

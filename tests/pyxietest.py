@@ -39,6 +39,25 @@ class LineTest(TestCase):
         self.assertRaises(Exception, skewed, (Point(10, 10), Point(20, 20)))
         self.assertRaises(Exception, skewed, (Point(10, 10), Point(10, 10)))
 
+    def test_line_overlap(self):
+        """Test that the line class correctly detects overlap."""
+        Line, Point = packer.Line, packer.Point
+        l1 = Line(Point(10, 10), Point(10, 30))
+        l2 = Line(Point(20, 20), Point(80, 20))
+
+        self.failUnless(l1.vertical)
+        self.failUnless(not l2.vertical)
+
+        self.failUnless(not l1.overlap(35, 50))
+        self.failUnless(l1.overlap(5, 15)) # overlap
+        self.failUnless(l1.overlap(5, 50)) # region contains line
+        self.failUnless(l1.overlap(15, 25)) # line contains region
+
+        self.failUnless(not l2.overlap(90, 95))
+        self.failUnless(l2.overlap(15, 40)) # overlap
+        self.failUnless(l2.overlap(15, 110)) # region contains line
+        self.failUnless(l2.overlap(40, 65)) # line contains region
+
 
 class PackerTest(TestCase):
 
