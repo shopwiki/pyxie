@@ -222,8 +222,8 @@ class PackerTest(TestCase):
         self.failUnless(f.x == 128)
         self.failUnless(f.y == 82)
 
-        has_bottom_left = [r for r in f.rectangles if r.bl]
-        self.failUnless(len(has_bottom_left) == 1)
+        has_free_bottom_left = [r for r in f.rectangles if not r.bl]
+        self.failUnless(len(has_free_bottom_left) == 1)
         self.failUnless(f.rectangles[1].bl)
         self.failUnless(f.rectangles[2].bl)
         self.failUnless(f.rectangles[3].bl)

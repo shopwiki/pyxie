@@ -53,6 +53,10 @@ class Line(object):
                 return True
             return False
 
+    def __repr__(self):
+        return '<Line (%d, %d) -> (%d, %d) %s >' % (self.p1.x, self.p1.y,
+                self.p2.x, self.p2.y, '|' if self.vertical else '-')
+
 
 class PositionedRectangle(object):
     """A rectangle positioned within a field.  Has the coordinates of the
@@ -130,7 +134,7 @@ class Field(object):
 
     def top_right(self, placed, new, place=False):
         if place:
-            self.mark_corners(placed.x, placed.y + placed.rect.y, new)
+            self.mark_corners(placed.x + placed.rect.x, placed.y, new)
             self.rectangles.append(PositionedRectangle(placed.x + placed.rect.x, placed.y, new))
             self.x, self.y = self.calculate_bounds()
             return
@@ -145,14 +149,17 @@ class Field(object):
         "occupied" by the new rectangle, and mark them appropriately."""
         left = Line(Point(x, y), Point(x, y + rect.y))
         top = Line(Point(x, y), Point(x + rect.x, y))
+        # print "Adding rectangle %r to %d, %d (t/l: %s, %s)" % (rect, x, y, top, left)
         # for every rectangle, if the top right or bottom left corners are in
         # these lines, mark them as blocked
         for pos in self.rectangles:
             if not pos.tr:
-                if Point(pos.x + pos.rect.x, pos.y) in left:
+                p = Point(pos.x + pos.rect.x, pos.y)
+                if p in top or p in left:
                     pos.tr = True
             if not pos.bl:
-                if Point(pos.x, pos.y + pos.rect.y) in top:
+                p = Point(pos.x, pos.y + pos.rect.y)
+                if p in top or p in left:
                     pos.bl = True
         return True
 
