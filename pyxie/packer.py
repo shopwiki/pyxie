@@ -205,9 +205,3 @@ class Field(object):
                 return True
         return False
 
-
-def autopack(*files):
-    """Autopack a bunch of image files into a reasonably optimized Field."""
-    pass
-
-

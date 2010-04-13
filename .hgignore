@@ -7,4 +7,5 @@ docs/_build*
 *egg-info*
 build
 dist
+img/*
 
