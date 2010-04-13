@@ -121,11 +121,11 @@ class Field(object):
                     return
                 # if we didn't have a collision
                 if result is not None:
-                    attempts.append((result, placement, rect))
+                    attempts.append((result, -self.rectangles.index(rect), placement, rect))
         attempts.sort()
         if not attempts:
             import ipdb; ipdb.set_trace();
-        result, placement, rect = attempts[0]
+        result, blah, placement, rect = attempts[0]
         #print "Area increasing from %d to %d" % (self.area(), result)
         placement(rect, rectangle, place=True)
         self.x, self.y = self.calculate_bounds()

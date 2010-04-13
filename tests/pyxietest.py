@@ -260,3 +260,4 @@ class PackerTest(TestCase):
         f.add_rectangle(rects[2])
         self.failUnless(f.x == 1928)
         self.failUnless(f.y == 100)
+

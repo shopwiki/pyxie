@@ -30,6 +30,7 @@ setup(
     license='Proprietary',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
+    scripts=['bin/pyxie'],
     zip_safe=False,
     test_suite="tests",
     install_requires=[

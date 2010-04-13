@@ -4,6 +4,7 @@
 """Pyxies main library;  builds sprites from images."""
 
 import os
+import re
 import glob
 from packer import Rectangle, Field
 
@@ -35,8 +36,30 @@ def autopack(*images):
         f.add_rectangle(rect)
     return f
 
+def slugify(name):
+    """Slugify's a filename into something that is suitable for a css class name."""
+    nonchr = re.compile(r'[^-_\w]')
+    name = '-'.join(name.split(".")[:-1])
+    return nonchr.sub('-', name)
+
 class Sprite(object):
     """A class representing a sprite sheet."""
+
+    css_template = """.%(name)s {
+    background: transparent url(%(path)s) -%(x)dpx -%(y)dpx no-repeat;
+    width: %(w)dpx; height: %(h)dpx;
+}"""
+
+    html_body_template = """<html>\n    <head><style type="text/css">
+    %(css)s
+    div { border: 1px solid red; }
+    </style></head>
+    <body>
+        %(body)s
+    </body>\n</html>"""
+
+    html_img_template = """<h4>file "%(filename)s"</h4><div class="%(cls)s"></div>"""
+
     def __init__(self, field):
         self.field = field
         self.img = Image.new("RGBA", (field.x, field.y))
@@ -48,6 +71,49 @@ class Sprite(object):
 
     def show(self):
         self.img.show()
+
+    def write(self, filename):
+        if filename.endswith('gif'):
+            transparency = None
+            for r in self.field.rectangles:
+                if 'transparency' in r.data.info:
+                    transparency = r.data.info['transparency']
+                    break
+            if transparency is not None:
+                self.img.save(filename, transparency=transparency)
+                return
+        self.img.save(filename)
+        self.filename = filename
+
+    def css(self):
+        if not hasattr(self, "filename"):
+            print "Please write this sprite to an image first."""
+            return
+        rules = []
+        for pos in self.field.rectangles:
+            rect = pos.rect
+            context = dict(
+                name=slugify(rect.data.filename),
+                path=self.filename,
+                x=pos.x, y=pos.y,
+                w=rect.x, h=rect.y
+            )
+            rules.append(self.css_template % context)
+        return '\n'.join(rules)
+
+    def html(self):
+        if not hasattr(self, "filename"):
+            print "Please write this sprite to an image first."""
+            return
+        css = self.css()
+        imgs = []
+        for pos in self.field.rectangles:
+            rect = pos.rect
+            imgs.append(self.html_img_template % dict(
+                filename=rect.data.filename,
+                cls=slugify(rect.data.filename)
+            ))
+        return self.html_body_template % dict(css=css, body='\n'.join(imgs))
 
 def sprite_from_glob(*glob_exprs):
     filenames = []
