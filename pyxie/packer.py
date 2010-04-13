@@ -49,11 +49,11 @@ class Line(object):
         within the other line."""
         if self.vertical:
             y1, y2 = self.p1.y, self.p2.y
-            return (p1 >= y1 and p1 <= y2) or (p2 >= y1 and p2 <= y2) or\
-                    (y1 >= p1 and y1 <= p2) or (y2 >= p1 and y2 <= p2)
+            return (p1 > y1 and p1 < y2) or (p2 > y1 and p2 < y2) or\
+                    (y1 > p1 and y1 < p2) or (y2 > p1 and y2 < p2)
         x1, x2 = self.p1.x, self.p2.x
-        return (p1 >= x1 and p1 <= x2) or (p2 >= x1 and p2 <= x2) or\
-                (x1 >= p1 and x1 <= p2) or (x2 >= p1 and x2 <= p2)
+        return (p1 > x1 and p1 < x2) or (p2 > x1 and p2 < x2) or\
+                (x1 > p1 and x1 < p2) or (x2 > p1 and x2 < p2)
 
     def __contains__(self, p):
         """Return whether or not this line contains a point p."""
@@ -208,9 +208,9 @@ class Field(object):
             a collision."""
             # if the x components and y components of the rectangle overlap, then
             # the rectangles overlap;  if they don't, then they don't.
-            if top.overlap(rect.x, rect.x + rect.rect.x):
+            if not top.overlap(rect.x, rect.x + rect.rect.x):
                 return False
-            if left.overlap(rect.y, rect.y + rect.rect.y):
+            if not left.overlap(rect.y, rect.y + rect.rect.y):
                 return False
             return True
 

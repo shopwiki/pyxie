@@ -247,3 +247,16 @@ class PackerTest(TestCase):
         self.failUnless(f.rectangles[2].bl)
         self.failUnless(f.rectangles[3].bl)
 
+    def test_collision_detection1(self):
+        """Horizontal collision detection of hanging rect."""
+        rects = [packer.Rectangle(*args) for args in [
+            (728, 90),
+            (300, 100),
+            (900, 30),
+        ]]
+        f = packer.Field()
+        f.add_rectangle(rects[0])
+        f.add_rectangle(rects[1])
+        f.add_rectangle(rects[2])
+        self.failUnless(f.x == 1928)
+        self.failUnless(f.y == 100)
