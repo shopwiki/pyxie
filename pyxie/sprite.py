@@ -119,7 +119,10 @@ def sprite_from_glob(*glob_exprs):
     filenames = []
     for expr in glob_exprs:
         filenames += glob.glob(expr)
-    images = [Image.open(f) for f in filenames]
+    return sprite_from_paths(*filenames)
+
+def sprite_from_paths(*paths):
+    images = [Image.open(f) for f in paths]
     field = autopack(*images)
     return Sprite(field)
 
