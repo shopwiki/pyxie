@@ -63,7 +63,12 @@ class Sprite(object):
 
     html_img_template = """<h4>file "%(filename)s"</h4><div class="%(cls)s"></div>"""
 
-    sass_template = """ """
+    sass_template = """\
+=%(name)s
+    background: transparent url(%(path)s) -%(x)dpx -%(y)dpx no-repeat
+    width: %(w)dpx
+    height: %(h)dpx
+"""
 
     def __init__(self, field):
         self.field = field
@@ -91,9 +96,20 @@ class Sprite(object):
         self.filename = filename
 
     def sass(self, spriteurl=None):
+        if not spriteurl and not hasattr(self, "filename"):
+            print "Please write this sprite to an image or provide a spriteurl."""
+            return
         rules = []
+        spriteurl = spriteurl if spriteurl else self.filename
         for pos in self.field.rectangles:
-            pass
+            rect = pos.rect
+            context = dict(
+                name=slugify(rect.data.filename),
+                path=spriteurl,
+                x=pos.x, y=pos.y,
+                w=rect.x, h=rect.y
+            )
+            rules.append(self.sass_template % context)
         return '\n'.join(rules)
 
     def css(self, spriteurl=None):
