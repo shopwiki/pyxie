@@ -7,7 +7,7 @@ import sys
 import glob
 import os
 import optparse
-from pyxie import sprite
+from pyxie import sprite, packer
 
 white, black, red, green, yellow, blue, purple = range(89, 96)
 def color(string, color=green, bold=True):
@@ -22,12 +22,23 @@ def err(string):
 def main():
     opts, args = parse_args()
     spritepath, paths = args[0], args[1:]
-    s = sprite.sprite_from_paths(*paths)
+
+    fieldcls = packer.VerticalField if opts.vertical else packer.Field
+    s = sprite_from_paths(*paths, **dict(fieldcls=fieldcls))
+    # options
+    spriteurl = opts.sprite_url if opts.sprite_url else None
+    genstyle = s.sass if opts.sass else s.css
+
+    # save the sprite image
     s.write(spritepath)
+
+    # write the style out
     if opts.css:
-        open(opts.css, 'w').write(s.css())
+        open(opts.css, 'w').write(genstyle(spriteurl))
     else:
-        print s.css()
+        print genstyle(spriteurl)
+
+    # write optional html example file
     if opts.html:
         open(opts.html, 'w').write(s.html())
     return 0
@@ -36,8 +47,12 @@ def parse_args():
     parser = optparse.OptionParser(version='0.1', usage='%prog [opts] spritefile <images>')
     parser.set_conflict_handler("resolve")
     parser.add_option('-c', '--css', help='css output file (default stdout)')
+    parser.add_option('', '--sass', action='store_true', help='output style as sass mixins')
     parser.add_option('', '--sprite-url', help='url to the sprite')
     parser.add_option('-h', '--html', help='html output file (default none)')
+    parser.add_option('-v', '--vertical', action='store_true',
+            help='pack images vertically only (for x-repeat)')
+
     # parser.add_option('', '--class-prefix', help='css class prefix')
     opts, args = parser.parse_args()
     if not args:
@@ -45,6 +60,13 @@ def parse_args():
     if len(args) < 2:
         err("You can't make a sprite without images")
     return opts, args
+
+def sprite_from_paths(*paths, **kwargs):
+    from PIL import Image
+    images = [Image.open(f) for f in paths]
+    field = sprite.autopack(*images, **kwargs)
+    return sprite.Sprite(field)
+
 
 if __name__ == '__main__':
     try:

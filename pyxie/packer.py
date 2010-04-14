@@ -14,6 +14,8 @@ placed the smallest rectangle.
 The coordinate system used here has the origin (0, 0) at the top-left.
 """
 
+__all__ = ['Rectangle', 'Field', 'VerticalField']
+
 class Rectangle(object):
     def __init__(self, x, y, data=None):
         self.x, self.y = x, y
@@ -223,4 +225,15 @@ class Field(object):
             if collide(rect, top, left):
                 return True
         return False
+
+class VerticalField(Field):
+    """A field that only packs itself vertically."""
+    def add_rectangle(self, rectangle):
+        """Add a rectangle to this field underneath the previous rectangle."""
+        if not self.rectangles:
+            self.rectangles.append(PositionedRectangle(0, 0, rectangle))
+            self.x, self.y = self.calculate_bounds()
+            return
+        self.bottom_left(self.rectangles[-1], rectangle, place=True)
+        self.x, self.y = self.calculate_bounds()
 

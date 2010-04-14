@@ -6,7 +6,7 @@
 import os
 import re
 import glob
-from packer import Rectangle, Field
+from packer import *
 
 try:
     import Image
@@ -26,12 +26,14 @@ def rectangle_sort(rect):
     width = img.size[0]
     return (area, width, os.path.basename(img.filename))
 
-def autopack(*images):
+def autopack(*images, **kwargs):
     """Takes a list of PIL images, creates a Rectangle from them, orders them
-    in a specific order, then packs them and returns the field."""
+    in a specific order, then packs them and returns the field.  Pass `fieldcls`
+    to customize which field you want to use."""
+    fieldcls = kwargs.get('fieldcls', Field)
     rects = [Rectangle(*i.size, data=i) for i in images]
     rects.sort(key=rectangle_sort, reverse=True)
-    f = Field()
+    f = fieldcls()
     for rect in rects:
         f.add_rectangle(rect)
     return f
@@ -61,6 +63,8 @@ class Sprite(object):
 
     html_img_template = """<h4>file "%(filename)s"</h4><div class="%(cls)s"></div>"""
 
+    sass_template = """ """
+
     def __init__(self, field):
         self.field = field
         self.img = Image.new("RGBA", (field.x, field.y))
@@ -86,16 +90,23 @@ class Sprite(object):
         self.img.save(filename)
         self.filename = filename
 
-    def css(self):
+    def sass(self, spriteurl=None):
+        rules = []
+        for pos in self.field.rectangles:
+            pass
+        return '\n'.join(rules)
+
+    def css(self, spriteurl=None):
         if not hasattr(self, "filename"):
             print "Please write this sprite to an image first."""
             return
+        spriteurl = spriteurl if spriteurl else self.filename
         rules = []
         for pos in self.field.rectangles:
             rect = pos.rect
             context = dict(
                 name=slugify(rect.data.filename),
-                path=self.filename,
+                path=spriteurl,
                 x=pos.x, y=pos.y,
                 w=rect.x, h=rect.y
             )
