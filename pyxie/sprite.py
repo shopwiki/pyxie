@@ -86,11 +86,12 @@ class Sprite(object):
         if filename.endswith('gif'):
             transparency = None
             for r in self.field.rectangles:
-                if 'transparency' in r.data.info:
-                    transparency = r.data.info['transparency']
+                if 'transparency' in r.rect.data.info:
+                    transparency = r.rect.data.info['transparency']
                     break
             if transparency is not None:
                 self.img.save(filename, transparency=transparency)
+                self.filename = filename
                 return
         self.img.save(filename)
         self.filename = filename
