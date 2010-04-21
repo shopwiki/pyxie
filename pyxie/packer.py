@@ -95,8 +95,8 @@ class PositionedRectangle(object):
                 self.rect.x, self.rect.y, self.tr, self.bl)
 
 class Field(object):
-    def __init__(self, x=0, y=0):
-        self.x, self.y = x, y
+    def __init__(self):
+        self.x, self.y = 0, 0
         self.rectangles = []
 
     def area(self):
@@ -242,6 +242,10 @@ class Field(object):
 
 class VerticalField(Field):
     """A field that only packs itself vertically."""
+    def __init__(self, padding=0):
+        super(VerticalField, self).__init__()
+        self.padding = padding
+
     def add_rectangle(self, rectangle):
         """Add a rectangle to this field underneath the previous rectangle."""
         if not self.rectangles:
@@ -251,3 +255,10 @@ class VerticalField(Field):
         self.bottom_left(self.rectangles[-1], rectangle, place=True)
         self.x, self.y = self.calculate_bounds()
 
+    def bottom_left(self, placed, new, place=False):
+        """Attempt to place a new rectangle on the bottom left corner of a
+        previously placed rectangle.  Return the amt that the overall area of
+        the field would increase, or None if a collision is detected."""
+        # self.mark_corners(placed.x, placed.y + placed.rect.y, new)
+        self.rectangles.append(PositionedRectangle(placed.x, placed.y + placed.rect.y + self.padding, new))
+        self.x, self.y = self.calculate_bounds()
