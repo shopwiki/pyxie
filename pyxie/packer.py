@@ -210,6 +210,20 @@ class Field(object):
             a collision."""
             # if the x components and y components of the rectangle overlap, then
             # the rectangles overlap;  if they don't, then they don't.
+
+            # first, we need to check an edge case:
+            # it's possible for the rectangle to overlap in some way, but only
+            # at the top-left corner;  so we check that if the top left corners
+            # are the same, and if they are, return false
+            #+-------+-+
+            #|       | |
+            #+-------+ |
+            #+---------+
+            if top.p1.x == rect.x and top.p1.y == rect.y:
+                return True
+
+            # if the top-left point is the same, and the left & top lines go in
+            # the same direction, they collide
             if not top.overlap(rect.x, rect.x + rect.rect.x):
                 return False
             if not left.overlap(rect.y, rect.y + rect.rect.y):

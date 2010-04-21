@@ -55,6 +55,13 @@ def main():
         open(opts.html, 'w').write(s.html())
     return 0
 
+def read_image_list(path):
+    """Read a list of images from a file instead of taking it on the command
+    line.  Ignores lines starting with # and lines without any text on them."""
+    images = map(str.strip, open(path).readlines())
+    images = [i for i in images if i and not i.startswith('#')]
+    return images
+
 def parse_args():
     parser = optparse.OptionParser(version='0.1', usage='%prog [opts] spritefile <images>')
     parser.set_conflict_handler("resolve")
@@ -64,13 +71,18 @@ def parse_args():
     parser.add_option('-h', '--html', help='html output file (default none)')
     parser.add_option('-v', '--vertical', action='store_true',
             help='pack images vertically only (for x-repeat)')
+    parser.add_option('-i', '--images', help='read images to use from a text file')
 
     # parser.add_option('', '--class-prefix', help='css class prefix')
     opts, args = parser.parse_args()
     if not args:
         err("You must provide a path for the sprite-file")
-    if len(args) < 2:
+    if not opts.images and len(args) < 2:
         err("You can't make a sprite without images")
+    if opts.images and len(args) > 1:
+        err("You cannot define an image file and give images on the command line")
+    if opts.images:
+        args += read_image_list(opts.images)
     return opts, args
 
 def sprite_from_paths(*paths, **kwargs):
