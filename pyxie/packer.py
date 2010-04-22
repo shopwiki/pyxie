@@ -263,6 +263,28 @@ class VerticalField(Field):
         self.rectangles.append(PositionedRectangle(placed.x, placed.y + placed.rect.y + self.padding, new))
         self.x, self.y = self.calculate_bounds()
 
+class HorizontalField(Field):
+    """A field that only packs itself horizontally."""
+    def __init__(self, padding=0):
+        super(HorizontalField, self).__init__()
+        self.padding = padding
+
+    def add_rectangle(self, rectangle):
+        """Add a rectangle to this field underneath the previous rectangle."""
+        if not self.rectangles:
+            self.rectangles.append(PositionedRectangle(0, 0, rectangle))
+            self.x, self.y = self.calculate_bounds()
+            return
+        self.top_right(self.rectangles[-1], rectangle, place=True)
+        self.x, self.y = self.calculate_bounds()
+
+    def top_right(self, placed, new, place=False):
+        """Place a rectangle off the top right of a previous one, with
+        applied x-padding."""
+        self.rectangles.append(PositionedRectangle(placed.x + placed.rect.x + self.padding, 0, new))
+        self.x, self.y = self.calculate_bounds()
+
+
 class BoxField(Field):
     """A field that packs itself into a box, ie for rounded corner use."""
     def __init__(self, xpadding=0, ypadding=0):

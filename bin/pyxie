@@ -39,7 +39,7 @@ def main():
         fieldcls = lambda: packer.BoxField(opts.xpadding, opts.ypadding)
     if opts.horizontal:
         kwargs['packtype'] = 'Horizontal'
-        # fieldcls = lambda: packer.HorizontalField(opts.xpadding)
+        fieldcls = lambda: packer.HorizontalField(opts.xpadding)
     if opts.vertical:
         kwargs['packtype'] = 'Vertical'
         fieldcls = lambda: packer.VerticalField(opts.ypadding)
