@@ -291,7 +291,6 @@ class BoxField(Field):
             br = self.rectangles[-1]
             # get a height adjustment so that the bottom-left corner of this
             # rectangle goes into the bottom-left corner
-            import ipdb; ipdb.set_trace();
             yadjust = br.rect.y - rectangle.y
             self.rectangles.append(PositionedRectangle(0, br.y + yadjust, rectangle))
         else:
