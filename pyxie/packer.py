@@ -262,3 +262,38 @@ class VerticalField(Field):
         # self.mark_corners(placed.x, placed.y + placed.rect.y, new)
         self.rectangles.append(PositionedRectangle(placed.x, placed.y + placed.rect.y + self.padding, new))
         self.x, self.y = self.calculate_bounds()
+
+class BoxField(Field):
+    """A field that packs itself into a box, ie for rounded corner use."""
+    def __init__(self, xpadding=0, ypadding=0):
+        super(BoxField, self).__init__()
+        self.xpadding = xpadding
+        self.ypadding = ypadding
+
+    def add_rectangle(self, rectangle):
+        """Add a rectangle to this field.  Note that this field only packs
+        in boxes, starting from the top left and going clockwise."""
+        if not self.rectangles:
+            self.rectangles.append(PositionedRectangle(0, 0, rectangle))
+        elif len(self.rectangles) == 1: # top right
+            tl = self.rectangles[0]
+            self.rectangles.append(PositionedRectangle(tl.rect.x + self.xpadding, 0, rectangle))
+        elif len(self.rectangles) == 2: # bottom right
+            tl, tr = self.rectangles
+            # find the max value we'd need to get the vertical padding we want
+            # even if that padding is from the top-left rectangle
+            maxy = max([tl.rect.y, tr.rect.y])
+            # adjust the x positioning so that the bottom right corner of this
+            # rectangle goes into the bottom right
+            xadjust = tr.rect.x - rectangle.x
+            self.rectangles.append(PositionedRectangle(tr.x,  maxy + self.ypadding, rectangle))
+        elif len(self.rectangles) == 3: # bottom left
+            br = self.rectangles[-1]
+            # get a height adjustment so that the bottom-left corner of this
+            # rectangle goes into the bottom-left corner
+            yadjust = br.rect.y - rectangle.y
+            self.rectangles.append(PositionedRectangle(0, br.y + yadjust + self.ypadding, rectangle))
+        else:
+            raise Exception("BoxField can only accept 4 rectangles;  "
+                    "You've packed too many images!")
+
