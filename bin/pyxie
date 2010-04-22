@@ -68,20 +68,54 @@ def read_image_list(path):
     return images
 
 def parse_args():
-    parser = optparse.OptionParser(version='0.1', usage='%prog [opts] spritefile <images>')
+    parser = optparse.OptionParser(version='0.2', usage='%prog [opts] spritefile <images>')
     parser.set_conflict_handler("resolve")
     parser.add_option('-c', '--css', help='css output file (default stdout)')
     parser.add_option('', '--sass', action='store_true', help='output style as sass mixins')
     parser.add_option('', '--sprite-url', help='url to the sprite')
     parser.add_option('-h', '--html', help='html output file (default none)')
-    parser.add_option('-v', '--vertical', action='store_true',
-            help='pack images vertically only (for x-repeat)')
-    parser.add_option('-p', '--padding', help='add vertical padding to vertically packed images (for bottom placement)')
+    parser.add_option('-y', '--ypadding', help='add vertical padding to vertically packed images')
+    parser.add_option('-x', '--xpadding', help='add horizontal padding to horizontally packed images')
     parser.add_option('-i', '--images', help='read images to use from a text file')
 
+    packstyle = optparse.OptionGroup(parser, "Packing Styles", "Change the way"
+            " that Pyxie packs images (for use in different contexts)")
+    packstyle.add_option('',   '--greedy', action='store_true', default=True,
+            help='default operation;  greedy algorithm to pack as tight as possible')
+    packstyle.add_option('', '--vertical', action='store_true',
+            help='pack images vertically only (for x-repeat)')
+    packstyle.add_option('', '--horizontal', action='store_true',
+            help='pack images horizontally only (for y-repeat)')
+    packstyle.add_option('', '--box', action='store_true',
+            help='pack images in a box (for corners)')
+    packstyle.add_option('', '--pack-help', action='store_true',
+            help='extended information on pack styles')
+    packstyle.add_option('', '--align-bottom', action='store_true')
+    packstyle.add_option('', '--align-right', action='store_true')
+
+
+    parser.add_option_group(packstyle)
     # parser.add_option('', '--class-prefix', help='css class prefix')
+
     opts, args = parser.parse_args()
-    opts.padding = int(opts.padding) if opts.padding else 0
+
+    if opts.pack_help:
+        pack_style_help()
+        raise KeyboardInterrupt
+    opts.xpadding = int(opts.xpadding) if opts.xpadding else 0
+    opts.ypadding = int(opts.ypadding) if opts.ypadding else 0
+
+    if opts.xpadding and opts.vertical:
+        err("Xpadding meaningless in vertical packing; did you want --horizontal?")
+    if opts.ypadding and opts.horizontal:
+        err("Ypadding meaningless in horizontal packing; did you want --vertical?")
+
+    if opts.align_bottom and not opts.horizontal:
+        err("--align-bottom can only be used with --horizontal")
+    if opts.align_right and not opts.vertical:
+        err("--align-right can only be used with --vertical")
+
+
     if not args:
         err("You must provide a path for the sprite-file")
     if not opts.images and len(args) < 2:
@@ -99,6 +133,39 @@ def sprite_from_paths(*paths, **kwargs):
     images = [Image.open(f) for f in paths]
     field = sprite.autopack(*images, **kwargs)
     return sprite.Sprite(field)
+
+def pack_style_help():
+    """The pack style details how images are placed within the sprite.
+
+    %(greedy)s - packs images as tightly as possible (speed-optimized) with
+    no regards to alignment with the sprite itself or the rest of the image.
+
+    %(vertical)s - packs images vertically.  The default alignment with the
+    sprite image is left-aligned, changeable with the %(alignright)s option.
+    For sprites with x-repeat, make sure their widths are all identical.
+
+    %(horizontal)s - packs images horizontally.  The default vertical
+    alignment for the sprite image is top, changeable with the
+    %(alignbottom)s option.  For sprites with y-repeat, make sure their
+    widths are all identical.
+
+    %(box)s - packs 4 images in a box, useful for 'corner' sprites where the
+    background position is required for background placement.  Make sure to
+    supply %(xpadding)s and %(ypadding)s sufficient to hide the rest of the
+    sprite image from showing up in the middle of your content."""
+
+    strs = dict(
+        greedy=color('--greedy', purple),
+        vertical=color('--vertical', purple),
+        horizontal=color('--horizontal', purple),
+        box=color('--box', purple),
+
+        alignright=color('--align-right', white),
+        alignbottom=color('--align-bottom', white),
+        xpadding=color('--xpadding', white),
+        ypadding=color('--ypadding', white),
+    )
+    print pack_style_help.__doc__ % strs
 
 
 if __name__ == '__main__':
