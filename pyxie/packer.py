@@ -320,3 +320,28 @@ class BoxField(Field):
                     "You've packed too many images!")
         self.x, self.y = self.calculate_bounds()
 
+class AlternatingField(Field):
+    """A field that packs vertically, alternating from left ot right.  This
+    is useful for buttons that have a left-side and a right side."""
+    def __init__(self, padding=0):
+        super(AlternatingField, self).__init__()
+        self.padding = padding
+
+    def add_rectangle(self, rectangle):
+        """Rectangles must be sorted width-wise for this!"""
+        if not self.rectangles:
+            self.rectangles.append(PositionedRectangle(0, 0, rectangle))
+            self.align = 'right'
+        elif self.align == 'right':
+            # align this rectangle along the right edge;  the max width of the
+            # sprite is already determined by the first rectangle, which must be
+            # the widest rectangle
+            xpos = self.x - rectangle.x
+            self.rectangles.append(PositionedRectangle(xpos, self.y + self.padding, rectangle))
+            self.align = 'left'
+        elif self.align == 'left':
+            self.rectangles.append(PositionedRectangle(0, self.y + self.padding, rectangle))
+            self.align = 'right'
+
+        self.x, self.y = self.calculate_bounds()
+

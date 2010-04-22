@@ -73,6 +73,9 @@ class Sprite(object):
 
 =%(name)s-bg
     background: transparent url(%(path)s) -%(x)dpx -%(y)dpx no-repeat
+
+=%(name)s-bgr
+    background: transparent url(%(path)s) right -%(y)dpx no-repeat
 """
 
     def __init__(self, field):

@@ -43,6 +43,9 @@ def main():
     if opts.vertical:
         kwargs['packtype'] = 'Vertical'
         fieldcls = lambda: packer.VerticalField(opts.ypadding)
+    if opts.alternating:
+        kwargs['packtype'] = 'Alternating'
+        fieldcls = lambda: packer.AlternatingField(opts.ypadding)
 
     kwargs['fieldcls'] = fieldcls
     s = sprite_from_paths(*paths, **kwargs)
@@ -99,6 +102,8 @@ def parse_args():
             help='pack images horizontally only (for y-repeat)')
     packstyle.add_option('', '--box', action='store_true',
             help='pack images in a box (for corners)')
+    packstyle.add_option('', '--alternating', action='store_true',
+            help='pack images vertically, alternating left/right alignment')
     packstyle.add_option('', '--pack-help', action='store_true',
             help='extended information on pack styles')
     packstyle.add_option('', '--align-bottom', action='store_true')
@@ -118,7 +123,7 @@ def parse_args():
     opts.ypadding = int(opts.ypadding) if opts.ypadding else 0
 
     # don't allow invalid padding options for the wrong pack styles
-    if opts.xpadding and opts.vertical:
+    if opts.xpadding and any([opts.vertical, opts.alternating]):
         err("Xpadding meaningless in vertical packing; did you want --horizontal?")
     if opts.ypadding and opts.horizontal:
         err("Ypadding meaningless in horizontal packing; did you want --vertical?")
@@ -132,8 +137,10 @@ def parse_args():
     # don't allow align options with box pack style
     if opts.box and (opts.align_right or opts.align_bottom):
         err("--box packing has its own alignment")
+    if opts.alternating and (opts.align_right or opts.align_bottom):
+        err("--alternating packing has its own alignment")
 
-    if len(filter(None, [opts.vertical, opts.horizontal, opts.box])) > 1:
+    if len(filter(None, [opts.vertical, opts.horizontal, opts.box, opts.alternating])) > 1:
         err("You cannot mix different pack styles in the same sprite")
 
     if opts.sh:
@@ -174,13 +181,20 @@ def pack_style_help():
     %(box)s - packs 4 images in a box, useful for 'corner' sprites where the
     background position is required for background placement.  Make sure to
     supply %(xpadding)s and %(ypadding)s sufficient to hide the rest of the
-    sprite image from showing up in the middle of your content."""
+    sprite image from showing up in the middle of your content.
+
+    %(alternating)s - packs images vertically, alternating between left and
+    right alignment.  Useful for button style sprites where there's a left
+    and a right, but no top/bottom alignment;  this allows you to pack many
+    such buttons into one sprite.
+    """
 
     strs = dict(
         greedy=color('--greedy', purple),
         vertical=color('--vertical', purple),
         horizontal=color('--horizontal', purple),
         box=color('--box', purple),
+        alternating=color('--alternating', purple),
 
         alignright=color('--align-right', white),
         alignbottom=color('--align-bottom', white),
