@@ -31,13 +31,22 @@ def main():
     opts, args = parse_args()
     spritepath, paths = args[0], args[1:]
 
-    fieldcls = packer.VerticalField if opts.vertical else packer.Field
+    # set up the field class and the arguments to pack the sprite
+    fieldcls = packer.Field
+    kwargs = dict()
+    if opts.box:
+        kwargs['packtype'] = 'Box'
+        fieldcls = lambda: packer.BoxField(opts.xpadding, opts.ypadding)
+    if opts.horizontal:
+        kwargs['packtype'] = 'Horizontal'
+        # fieldcls = lambda: packer.HorizontalField(opts.xpadding)
+    if opts.vertical:
+        kwargs['packtype'] = 'Vertical'
+        fieldcls = lambda: packer.VerticalField(opts.ypadding)
 
-    if opts.padding and opts.vertical:
-        # oh you naughty boy
-        fieldcls = lambda: packer.VerticalField(opts.padding)
+    kwargs['fieldcls'] = fieldcls
+    s = sprite_from_paths(*paths, **kwargs)
 
-    s = sprite_from_paths(*paths, **dict(fieldcls=fieldcls))
     # options
     spriteurl = opts.sprite_url if opts.sprite_url else None
     genstyle = s.sass if opts.sass else s.css
@@ -102,28 +111,36 @@ def parse_args():
     if opts.pack_help:
         pack_style_help()
         raise KeyboardInterrupt
+
     opts.xpadding = int(opts.xpadding) if opts.xpadding else 0
     opts.ypadding = int(opts.ypadding) if opts.ypadding else 0
 
+    # don't allow invalid padding options for the wrong pack styles
     if opts.xpadding and opts.vertical:
         err("Xpadding meaningless in vertical packing; did you want --horizontal?")
     if opts.ypadding and opts.horizontal:
         err("Ypadding meaningless in horizontal packing; did you want --vertical?")
 
+    # only allow the alignment options with the right pack styles
     if opts.align_bottom and not opts.horizontal:
         err("--align-bottom can only be used with --horizontal")
     if opts.align_right and not opts.vertical:
         err("--align-right can only be used with --vertical")
 
+    # don't allow align options with box pack style
+    if opts.box and (opts.align_right or opts.align_bottom):
+        err("--box packing has its own alignment")
+
+    if len(filter(None, [opts.vertical, opts.horizontal, opts.box])) > 1:
+        err("You cannot mix different pack styles in the same sprite")
 
     if not args:
+        parser.print_usage()
         err("You must provide a path for the sprite-file")
     if not opts.images and len(args) < 2:
         err("You can't make a sprite without images")
     if opts.images and len(args) > 1:
         err("You cannot define an image file and give images on the command line")
-    if opts.padding and not opts.vertical:
-        err("You can only pad sprite images that are vertically aligned")
     if opts.images:
         args += read_image_list(opts.images)
     return opts, args

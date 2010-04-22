@@ -31,8 +31,10 @@ def autopack(*images, **kwargs):
     in a specific order, then packs them and returns the field.  Pass `fieldcls`
     to customize which field you want to use."""
     fieldcls = kwargs.get('fieldcls', Field)
+    packtype = kwargs.get('packtype', 'Greedy')
     rects = [Rectangle(*i.size, data=i) for i in images]
-    rects.sort(key=rectangle_sort, reverse=True)
+    if packtype in ('Greedy', 'Vertical', 'Horizontal'):
+        rects.sort(key=rectangle_sort, reverse=True)
     f = fieldcls()
     for rect in rects:
         f.add_rectangle(rect)
