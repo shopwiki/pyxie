@@ -22,19 +22,21 @@ setup(
     # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         'Development Status :: 1 - Planning',
+        'License :: OSI Approved :: MIT License',
     ],
     keywords='pyxie css sprite png pil',
     author='Jason Moiron',
     author_email='jmoiron@jmoiron.net',
-    url='http://bitbucket.org/jmoiron/pyxie',
-    license='Proprietary',
+    url='http://github.com/shopwiki/pyxie',
+    license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     scripts=['bin/pyxie'],
     zip_safe=False,
     test_suite="tests",
     install_requires=[
-      # -*- Extra requirements: -*-
+        'PIL',
+        # -*- Extra requirements: -*-
     ],
     entry_points="""
     # -*- Entry points: -*-
