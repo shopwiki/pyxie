@@ -52,7 +52,10 @@ class Sprite(object):
     css_template = """.%(name)s {
     background: transparent url(%(path)s) -%(x)dpx -%(y)dpx no-repeat;
     width: %(w)dpx; height: %(h)dpx;
-}"""
+}
+.%(name)s-bg { background: transparent url (%(path)s) -%(x)dpx -%(y)dpx no-repeat }
+.%(name)s-bgr { background: transparent url(%(path)s) right -%(y)dpx no-repeat }
+"""
 
     html_body_template = """<html>\n    <head><style type="text/css">
     %(css)s

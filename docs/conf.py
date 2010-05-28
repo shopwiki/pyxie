@@ -37,7 +37,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pyxie'
-copyright = u'2010 Jason Moiron'
+copyright = u'2010 Shopwiki'
 
 # The short X.Y version.
 version = '0.1'
