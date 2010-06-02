@@ -62,9 +62,13 @@ A lot of help is available by running ``pyxie --help``::
         --align-bottom      
         --align-right       
 
+Further Reading
+---------------
+
 .. toctree::
     :maxdepth: 1
 
-    generating_sprites
-    extending
+    about_css_sprites
+    using_pyxie
+    extending_pyxie
 
