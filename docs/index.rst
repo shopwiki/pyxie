@@ -70,5 +70,4 @@ Further Reading
 
     about_css_sprites
     using_pyxie
-    extending_pyxie
 

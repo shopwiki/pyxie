@@ -176,7 +176,7 @@ def pack_style_help():
     %(horizontal)s - packs images horizontally.  The default vertical
     alignment for the sprite image is top, changeable with the
     %(alignbottom)s option.  For sprites with y-repeat, make sure their
-    widths are all identical.
+    heights are all identical.
 
     %(box)s - packs 4 images in a box, useful for 'corner' sprites where the
     background position is required for background placement.  Make sure to

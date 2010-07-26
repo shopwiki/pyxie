@@ -70,9 +70,36 @@ This information is available by running ``pyxie --pack-help``.
 Command Line Usage
 ==================
 
+You can get a full help options with ``pyxie --help`` and extra help on pack
+styles with ``pyxie --pack-help``.
 
+Output
+~~~~~~
 
+Pyxie has a few different files to output.  Pyxie requires that the path for
+the sprite image itself be provided on the command line.  Pyxie will guess the
+format based on the extention of this output path.
+
+By default, styles for sprite usage are output to ``stdout``.  You can send
+this output to a file instead with ``-c``, which takes the path as an argument.
+You can make this style output sass mixins instead of css classes by supplying
+``--sass`` with no arguments.
+
+Pyxie can also output a sample HTML file with embedded CSS as a sample for how
+the sprites look with ``-h``.
 
 Shell Interpreter Usage
 =======================
+
+To use pyxie as a shell interpreter and create "sprite definition scripts",
+simply add the following to the top of your sprite script::
+
+    #!/usr/bin/env pyxie --sh <options> <sprite-file>
+    
+    path/to/image1
+    path/to/image2
+    path/to/image3
+
+Note that pack styles like ``box`` and ``alternating`` rely on the order of
+the images in order to position them correctly in the resultant sprite.
 
